@@ -1,3 +1,4 @@
+import qualified Data.Set as Set 
 main :: IO()
 main = do
 
@@ -11,7 +12,7 @@ main = do
           -- print(myRemoveDupsOrd  [1,2,5,7,7,8,9,9,9,9,10,11,11,12,45,45,45])
     
     -- (1.3) myRemoveDups
-          -- print(myRemoveDups [5,2,1,2,5,7,2,1,2,7])
+          print(myRemoveDups [5,2,1,2,5,7,12,1,2,7,12,21,23,12])
 
     -- (2.1) myZipWith
           -- print(myZipWith (+) [1,34,5,7,2,1] [1,2,4,7,2,5])
@@ -26,6 +27,11 @@ main = do
     -- (3.1) Prefissi
           -- print(prefissi [1,2,3,4,5])
 
+    -- (3.2) Prefissi
+          -- print(segSommaS [1,2,3,4,5] 5)
+
+    -- (3.3) Prefissi
+          -- print(sublSommaS [1,2,3,4,5] 6)
 --- ---- ---- ---
 
 -- 1. Rimozione di Duplicati
@@ -54,11 +60,22 @@ myRemoveDupsOrd (x:xs)
     | otherwise = x : myRemoveDupsOrd xs
 
 
-  -- (1.3) myRemoveDups
+  -- (1.3) myRemoveDups 
 
--- myRemoveDups ::  [a] -> [a]
--- myRemoveDups [x] = [x]
+  -- O(n) per l'iterazione della lista, O(log n) per operazioni su `Set`
+  -- Quindi questa funzione puo' anche essere riscritta utilizzando gli alberi binari di ricerca
+  
 
+myRemoveDups :: (Ord a) => [a] -> [a]
+myRemoveDups xs = funcRemoveDups xs Set.empty
+
+funcRemoveDups :: (Ord a) => [a] -> Set.Set a -> [a]
+funcRemoveDups [] _ = []
+funcRemoveDups (x:xs) set 
+    | Set.member x set = funcRemoveDups xs set
+    | otherwise = x : funcRemoveDups xs (Set.insert x set)
+
+-- Nota: Questa funzione potrebbe essere implementata direttamente utilizzando alberi binari di ricerca.
 
 -- 2. Interdefinibilita' di Funzionali
 
@@ -84,8 +101,6 @@ myMapFoldr f  = foldr ((:) . f) []
 myMapFoldl :: (a -> b) -> [a] -> [b]
 myMapFoldl f  = foldl (\acc x -> acc ++ [f x]) [] 
 
--- myMapFoldl f xs = foldl ((++) . (:[]) . f) [] xs
-
   -- (2.4) Il limite di map
 
   {- 
@@ -105,9 +120,29 @@ myMapFoldl f  = foldl (\acc x -> acc ++ [f x]) []
 prefissi :: [a] -> [[a]]
 prefissi [] = []
 prefissi xs = xs : prefissi (init xs)
--- prefissi xs@(_:txs) = xs : prefissi (init txs)
 
   -- (3.2) segSommaS
 
-segSommaS :: (Num a) => [a] -> a -> [[a]]
-segSommaS xs s = 
+suffissi :: [a] -> [[a]]
+suffissi [] = []
+suffissi xs@(_:txs) = xs : suffissi txs
+
+segSommaS :: (Num a, Eq a) => [a] -> a -> [[a]] 
+segSommaS [] _ = []
+segSommaS xs@(_:txs) s = filter (\x -> sum x == s) (prefissi xs) ++ segSommaS txs s
+
+  -- (3.3) sublSommaS
+
+-- Powerset, funzione introdotta nella lezione 5, genera tutte le sottostringhe possibili di un array
+powerset :: [a] -> [[a]]
+powerset [] = [[]]
+powerset (x:xs) = map (x:) ts ++ ts where
+  ts = powerset xs
+
+sublSommaS :: (Num a, Eq a) => [a] -> a -> [[a]] 
+sublSommaS xs s = filter (\x -> sum x == s) (powerset xs) 
+
+
+-- 4. Partizioni
+
+--  //
