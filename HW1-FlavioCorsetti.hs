@@ -19,9 +19,12 @@ main = do
     -- (2.2) zipWith with Zip
           -- print(withZip (+) [1,34,5,7,2,1] [1,2,4,7,2,5])
 
-    -- (2.2) myMap foldl & foldr
+    -- (2.3) myMap foldl & foldr
           -- print(myMapFoldr (^2) [1,23,4,66,7])
-          print(myMapFoldl (^2) [1,23,4,66,7])
+          -- print(myMapFoldl (^2) [1,23,4,66,7])
+
+    -- (3.1) Prefissi
+          -- print(prefissi [1,2,3,4,5])
 
 --- ---- ---- ---
 
@@ -62,7 +65,7 @@ myRemoveDupsOrd (x:xs)
   -- (2.1) myZipWith
 
 zapp :: [a -> b] -> [a] -> [b]
-zapp (f:fs)(x:xs)= f x : zapp fs xs
+zapp (f:fs)(x:xs) = f x : zapp fs xs
 zapp _ _ = []
 
 myZipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
@@ -86,9 +89,25 @@ myMapFoldl f  = foldl (\acc x -> acc ++ [f x]) []
   -- (2.4) Il limite di map
 
   {- 
-  
+
     La funzione Map e' limitata a operazioni che operano individualmente su ciascun elemento della lista,
     preservando sempre la struttura stessa della lista. Mentre Foldr e Foldl sono operazioni piu' "libere",
-    che possono trasformare una lista in un valore singolo o lasciare intatta la struttura della lista.
+    che possono trasformare una lista in un valore singolo o lasciare intatta la struttra della lista.
+    Inoltre Foldr e Foldl usano un accumulatore (acc) che map non utilizza.
   
   -}
+
+
+-- 3. Segmenti e sottoliste
+
+  -- (3.1) Prefissi
+
+prefissi :: [a] -> [[a]]
+prefissi [] = []
+prefissi xs = xs : prefissi (init xs)
+-- prefissi xs@(_:txs) = xs : prefissi (init txs)
+
+  -- (3.2) segSommaS
+
+segSommaS :: (Num a) => [a] -> a -> [[a]]
+segSommaS xs s = 
