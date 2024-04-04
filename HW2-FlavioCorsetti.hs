@@ -1,5 +1,3 @@
-import System.Win32 (COORD(xPos))
-import Control.Arrow (ArrowChoice(right))
 main :: IO()
 main = do
 
@@ -14,11 +12,13 @@ main = do
     -- (2.1) funzionali BT
         --print(mapBT (^23) (Node 1 (Node 2 (Node 4 Empty Empty) (Node 5 Empty Empty)) (Node 3 Empty Empty)))
         --print(mapBT' (^7) ( Node' (Node' (Leaf 1) (Node' (Leaf 2) (Leaf 3))) (Node' (Leaf 4) (Leaf 5))))
-        --print(foldrBT (:) [] (Node 1 (Node 2 (Node 4 Empty Empty) (Node 5 Empty Empty)) (Node 3 Empty Empty)))
-        --print(foldrBT' (:) [] ( Node' (Node' (Leaf 1) (Node' (Leaf 2) (Leaf 3))) (Node' (Leaf 4) (Leaf 5))))
-        --print(foldlBT (:) [] (Node 1 (Node 2 (Node 4 Empty Empty) (Node 5 Empty Empty)) (Node 3 Empty Empty)))
-        print(foldlBT' (:) [] ( Node' (Node' (Leaf 1) (Node' (Leaf 2) (Leaf 3))) (Node' (Leaf 4) (Leaf 5))))
-
+        --print(foldrBT (/) 2 (Node 1 (Node 2 (Node 4 Empty Empty) (Node 5 Empty Empty)) (Node 3 Empty Empty)))
+        --print(foldrBT' (/) 2 ( Node' (Node' (Leaf 1) (Node' (Leaf 2) (Leaf 3))) (Node' (Leaf 4) (Leaf 5))))
+        --print(foldlBT (/) 2 (Node 1 (Node 2 (Node 4 Empty Empty) (Node 5 Empty Empty)) (Node 3 Empty Empty)))
+        --print(foldlBT' (/) 2 ( Node' (Node' (Leaf 1) (Node' (Leaf 2) (Leaf 3))) (Node' (Leaf 4) (Leaf 5))))
+        --print(countNodi (Node 1 (Node 2 (Node 4 Empty Empty) (Node 5 Empty Empty)) (Node 3 Empty Empty)))
+        --print(countNodi'  ( Node' (Node' (Leaf 1) (Node' (Leaf 2) (Leaf 3))) (Node' (Leaf 4) (Leaf 5))))
+        print(log 2.71)
 --- ---- ---- ---
 
 
@@ -82,13 +82,34 @@ foldrBT' :: (a -> b -> b) -> b -> BinTree' a -> b
 foldrBT' f acc (Leaf a) = f a acc
 foldrBT' f acc (Node' left right) = foldrBT' f ( foldrBT' f acc right ) left 
 
-foldlBT :: (a -> b -> b) -> b -> BinTree a -> b  
+foldlBT :: (a -> b -> a) -> a -> BinTree b -> a  
 foldlBT _ acc Empty = acc
-foldlBT f acc (Node x left right) = foldlBT f (foldlBT f (f x acc) left) right
+foldlBT f acc (Node x left right) = foldlBT f (foldlBT f (f acc x) left) right
 
-foldlBT' :: (a -> b -> b) -> b -> BinTree' a -> b  
-foldlBT' f acc (Leaf a) = f a acc
+foldlBT' :: (a -> b -> a) -> a -> BinTree' b -> a  
+foldlBT' f acc (Leaf a) = f acc a
 foldlBT' f acc (Node' left right) = foldlBT' f ( foldlBT' f acc left ) right 
 
 
     -- (2.2) Funzionali BT
+
+
+countNodi :: (Num b) => BinTree a -> b
+countNodi  = foldrBT  (\x -> (+)1) 0 
+
+-- visto che il BinTree è sempre un Albero Binario Completo
+-- possiamo usare la formula (#foglie * 2) - 1 per calcolare 
+-- il numero di nodi dell'albero 
+countNodi' :: (Num b) => BinTree' a -> b
+countNodi' t = (foldrBT' (\x -> (+)1) 0 t * 2) - 1
+
+
+
+log2 :: Double -> Double
+log2 = logBase 2 
+
+altezzaAlbero' :: (Double b, Num b) => BinTree' a -> Double
+altezzaAlbero' t = log2 (fromIntegral (countNodi' t + 1)) - 1
+--altezzaAlbero' :: (Num b) => BinTree' a -> b 
+--altezzaAlbero' t = log2(countNodi' t + 1) - 1
+
