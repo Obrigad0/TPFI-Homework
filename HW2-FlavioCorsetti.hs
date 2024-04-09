@@ -18,7 +18,7 @@ main = do
         --print(foldlBT' (/) 2 ( Node' (Node' (Leaf 1) (Node' (Leaf 2) (Leaf 3))) (Node' (Leaf 4) (Leaf 5))))
         --print(countNodi (Node 1 (Node 2 (Node 4 Empty Empty) (Node 5 Empty Empty)) (Node 3 Empty Empty)))
         --print(countNodi'  ( Node' (Node' (Leaf 1) (Node' (Leaf 2) (Leaf 3))) (Node' (Leaf 4) (Leaf 5))))
-        print(log 2.71)
+        --print(log 2.71)
 --- ---- ---- ---
 
 
@@ -74,9 +74,15 @@ mapBT' :: (a -> b) -> BinTree' a -> BinTree' b
 mapBT' f (Leaf a) = Leaf (f a)
 mapBT' f (Node' left right) = Node' (mapBT' f left) (mapBT' f right)
 
-foldrBT :: (a -> b -> b) -> b -> BinTree a -> b  
-foldrBT _ acc Empty = acc
-foldrBT f acc (Node x left right) = foldrBT f (f x (foldrBT f acc right)) left
+-- rifare
+foldrBT :: (a -> b -> b) -> (b -> b -> b) -> b -> BinTree a -> b
+foldrBT _ _ acc Empty = acc
+foldrBT f fc acc (Node a lbt rbt) = f a (fc (foldrBT f fc acc lbt) (foldrBT f fc acc rbt))
+
+
+--foldrBT :: (a -> b -> b) -> b -> BinTree a -> b  
+--foldrBT _ acc Empty = acc
+--foldrBT f acc (Node x left right) = foldrBT f (f x (foldrBT f acc right)) left
 
 foldrBT' :: (a -> b -> b) -> b -> BinTree' a -> b  
 foldrBT' f acc (Leaf a) = f a acc
@@ -89,11 +95,11 @@ foldlBT f acc (Node x left right) = foldlBT f (foldlBT f (f acc x) left) right
 foldlBT' :: (a -> b -> a) -> a -> BinTree' b -> a  
 foldlBT' f acc (Leaf a) = f acc a
 foldlBT' f acc (Node' left right) = foldlBT' f ( foldlBT' f acc left ) right 
-
+---
 
     -- (2.2) Funzionali BT
 
-
+-- rifare
 countNodi :: (Num b) => BinTree a -> b
 countNodi  = foldrBT  (\x -> (+)1) 0 
 
@@ -103,8 +109,10 @@ countNodi  = foldrBT  (\x -> (+)1) 0
 countNodi' :: (Num b) => BinTree' a -> b
 countNodi' t = (foldrBT' (\x -> (+)1) 0 t * 2) - 1
 
+--- 
 
 
+-- rifare ??
 log2 :: Double -> Double
 log2 = logBase 2 
 
@@ -113,3 +121,4 @@ altezzaAlbero' t = log2 (fromIntegral (countNodi' t + 1)) - 1
 --altezzaAlbero' :: (Num b) => BinTree' a -> b 
 --altezzaAlbero' t = log2(countNodi' t + 1) - 1
 
+---  
