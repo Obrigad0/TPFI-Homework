@@ -24,7 +24,7 @@ main = do
         --print( mis (Node 1 (Node 2 (Node 4 Empty Empty) (Node 5 Empty Empty)) (Node 3 Empty Empty)))
         --print( mis' ( Node' (Node' (Leaf 1) (Node' (Leaf 2) (Node' (Node' (Leaf 2) (Leaf 3)) (Leaf 3)))) (Node' (Leaf 4) (Leaf 5))))
         --print ( nodiEquilibrati (Node 3 (Node 2 (Node 1 (Node 4 Empty Empty) Empty) (Node 0 Empty Empty)) (Node 2 (Node 1 Empty Empty) Empty)) )--- ---- ---- ---
-
+        --print ( listToABR [8,13,2,5,24,7,15,18] )
 
 -- 1. mergeSort “iterativo”
 
@@ -41,7 +41,7 @@ interval xs = interval (merge xs)
 merge :: (Ord a) => [[a]] -> [[a]]
 merge [] = []
 merge [x] = [x]
-merge (x:y:xs) = sort x y : merge xs 
+merge (x:y:xs) = sort x y : merge xs
 
 sort :: (Ord a) => [a] -> [a] -> [a]
 sort [] ys = ys
@@ -70,11 +70,11 @@ data BinTree' a = Node' (BinTree' a) (BinTree' a) | Leaf a deriving Show
 
     -- (2.1) Funzionali BT
 
-mapBT :: (a -> b) -> BinTree a -> BinTree b 
+mapBT :: (a -> b) -> BinTree a -> BinTree b
 mapBT _ Empty = Empty
 mapBT f (Node x left right) = Node (f x) (mapBT f left) (mapBT f right)
 
-mapBT' :: (a -> b) -> BinTree' a -> BinTree' b 
+mapBT' :: (a -> b) -> BinTree' a -> BinTree' b
 mapBT' f (Leaf a) = Leaf (f a)
 mapBT' f (Node' left right) = Node' (mapBT' f left) (mapBT' f right)
 
@@ -88,13 +88,13 @@ foldrBT' f f2 acc (Node' left right) = f2 (foldrBT' f f2 acc left) (foldrBT' f f
 
 
 ---
-foldlBT :: (a -> b -> a) -> a -> BinTree b -> a  
+foldlBT :: (a -> b -> a) -> a -> BinTree b -> a
 foldlBT _ acc Empty = acc
 foldlBT f acc (Node x left right) = foldlBT f (foldlBT f (f acc x) left) right
 
-foldlBT' :: (a -> b -> a) -> a -> BinTree' b -> a  
+foldlBT' :: (a -> b -> a) -> a -> BinTree' b -> a
 foldlBT' f acc (Leaf a) = f acc a
-foldlBT' f acc (Node' left right) = foldlBT' f ( foldlBT' f acc left ) right 
+foldlBT' f acc (Node' left right) = foldlBT' f ( foldlBT' f acc left ) right
 
 ---
 
@@ -104,18 +104,18 @@ foldlBT' f acc (Node' left right) = foldlBT' f ( foldlBT' f acc left ) right
         -- (a)
 
 countNodi :: (Num b) => BinTree a -> b
-countNodi  = foldrBT (\x -> (+)1) (+) 0 
+countNodi  = foldrBT (\x -> (+) 1) (+) 0
 
 countNodi' :: (Num b) => BinTree' a -> b
-countNodi'  = foldrBT'(\x -> (+)1) (\x y-> x+y+1 ) 0 
+countNodi'  = foldrBT' (\x -> (+) 1) (\x y-> x+y+1 ) 0
 
         -- (b)
 
 altezzaAlbero :: BinTree a -> Int
-altezzaAlbero t = foldrBT (\x -> (+)1) max 0 t - 1
+altezzaAlbero t = foldrBT (\x -> (+) 1) max 0 t - 1
 
 altezzaAlbero' :: BinTree' a -> Int
-altezzaAlbero' t = foldrBT' (\x -> (+)1) (\x y -> max x y +1) 0 t - 1
+altezzaAlbero' t = foldrBT' (\x -> (+) 1) (\x y -> max x y +1) 0 t - 1
 
         -- (c)
 
@@ -140,7 +140,7 @@ nodiEquilibrati t = snd (nodiEquilibratiAux t 0)
 
 nodiEquilibratiAux :: (Num a, Eq a) => BinTree a -> a -> (a,[a]) -- Radicato,[valori nodi equilibrati]
 nodiEquilibratiAux Empty _ = (0,[])
-nodiEquilibratiAux (Node x left right) cammino 
+nodiEquilibratiAux (Node x left right) cammino
     | fst leftTree + fst rightTree + x == cammino = (fst leftTree + fst rightTree + x, x : nodi)
     | otherwise = (fst leftTree + fst rightTree + x, nodi)
     where
@@ -148,6 +148,34 @@ nodiEquilibratiAux (Node x left right) cammino
       rightTree = nodiEquilibratiAux right (cammino + x)
       nodi = snd leftTree ++ snd rightTree
 
+-- !!ANALISI!!
+--
+-- La funzione nodiEquilibrati effettua un'analisi completa dell'albero binario, 
+-- visitando ogni nodo una sola volta. Questo è reso possibile dall'uso della tecnica del tupling, 
+-- che consente di accumulare e trasportare i valori necessari durante la visita dell'albero.
+-- La COMPLESSITA' TEMPORTALE della funzione è lineare rispetto al numero di nodi presenti nell'albero, ovvero 
+-- O(n), dove n rappresenta il numero totale di nodi. 
+
 
 -- 4. Alberi Binari di ricerca
 
+listToABR :: (Ord a) => [a] -> BinTree a
+listToABR xs = listToABRaUX xs Empty
+
+listToABRaUX :: (Ord a) => [a] -> BinTree a -> BinTree a
+listToABRaUX xs t = foldl inserimentoABR t xs
+
+inserimentoABR :: (Ord a) => BinTree a -> a -> BinTree a
+inserimentoABR Empty valore = Node valore Empty Empty
+inserimentoABR (Node x left right) valore
+    | valore < x = Node x (inserimentoABR left valore) right
+    | otherwise = Node x left (inserimentoABR right valore)
+
+-- !!ANALISI!!
+--
+-- il costo della funzione e' O(n log n).
+-- listToABRaUX scorre la lista una volta, quindi ha costo O(n)
+-- inserimentoABR e' una visita di un albero e costa O(log n)
+-- Se la lista e' ordinata, il costo di listToABR diventa O(n^2)
+
+-- 5. Derivazioni di programmi
