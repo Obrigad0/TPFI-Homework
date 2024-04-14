@@ -4,7 +4,7 @@ main = do
 --- TEST AREA ---
 
     -- (1.1) myMergeSort
-        --print(myMergeSort [5,3,4,2,1])
+        print(myMergeSort [5,3,4,2,1])
     -- (1.2) lucky strike
         --print(luckyCheck [5,3,4,2,1])
         --print(luckyCheck [1,2,3,4,5])
@@ -12,12 +12,15 @@ main = do
     -- (2.1) funzionali BT
         --print(mapBT (^23) (Node 1 (Node 2 (Node 4 Empty Empty) (Node 5 Empty Empty)) (Node 3 Empty Empty)))
         --print(mapBT' (^7) ( Node' (Node' (Leaf 1) (Node' (Leaf 2) (Leaf 3))) (Node' (Leaf 4) (Leaf 5))))
-        --print(foldrBT (+) (/) 2 (Node 1 (Node 2 (Node 4 Empty Empty) (Node 5 Empty Empty)) (Node 3 Empty Empty)))
+        --print(foldrBT (:) (++) [] (Node 1 (Node 2 (Node 4 Empty Empty) (Node 5 Empty Empty)) (Node 3 Empty Empty)))
         --print(foldrBT' (+) (+) 2 ( Node' (Node' (Leaf 1) (Node' (Leaf 2) (Leaf 3))) (Node' (Leaf 4) (Leaf 5))))
         --print(foldlBT (/) 2 (Node 1 (Node 2 (Node 4 Empty Empty) (Node 5 Empty Empty)) (Node 3 Empty Empty)))
         --print(foldlBT' (/) 2 ( Node' (Node' (Leaf 1) (Node' (Leaf 2) (Leaf 3))) (Node' (Leaf 4) (Leaf 5))))
         --print(countNodi (Node 1 (Node 2 (Node 4 Empty Empty) (Node 5 Empty Empty)) (Node 3 Empty Empty)))
         --print(countNodi'  ( Node' (Node' (Leaf 1) (Node' (Leaf 2) (Leaf 3))) (Node' (Leaf 4) (Leaf 5))))
+
+    -- altri test
+
         --print(log 2.71)
         --print(altezzaAlbero' ( Node' (Node' (Leaf 1) (Node' (Leaf 2) (Node' (Leaf 2) (Leaf 3)))) (Node' (Node' (Leaf 2) (Node' (Leaf 2) (Node' (Leaf 2) (Leaf 3)))) (Leaf 5))))
         --print(altezzaAlbero (Node 1 (Node 2 (Node 4 (Node 4 (Node 4 (Node 4 (Node 4 Empty Empty) Empty) Empty) Empty) (Node 4 Empty (Node 4 Empty Empty))) (Node 5 Empty Empty)) (Node 3 Empty Empty)))
@@ -25,6 +28,12 @@ main = do
         --print( mis' ( Node' (Node' (Leaf 1) (Node' (Leaf 2) (Node' (Node' (Leaf 2) (Leaf 3)) (Leaf 3)))) (Node' (Leaf 4) (Leaf 5))))
         --print ( nodiEquilibrati (Node 3 (Node 2 (Node 1 (Node 4 Empty Empty) Empty) (Node 0 Empty Empty)) (Node 2 (Node 1 Empty Empty) Empty)) )--- ---- ---- ---
         --print ( listToABR [8,13,2,5,24,7,15,18] )
+
+    -- facoltativo
+    --print (mapT (^2) (R 1 [R 2 [R 3 [R 3 []]], R 3 [R 3 [R 3 [R 3 []]]]]))
+    --print (foldrT (:) (++) [] (R 1 [R 2 [R 4 [],R 5 []],R 3 []]))
+
+
 
 -- 1. mergeSort “iterativo”
 
@@ -130,6 +139,24 @@ mis' (Leaf a) = 0
 mis' (Node' left right) = max (abs (altezzaAlbero' left - altezzaAlbero' right)) (max (mis' left) (mis' right))
 
 
+-- FACOLTATIVO  
+
+data Tree a = R a [Tree a] deriving Show   -- "a" valore , [Tree a] figli
+
+mapT :: (a -> b) -> Tree a -> Tree b
+mapT f (R x []) = R (f x) []
+mapT f (R x xs) = R (f x) (map (mapT f) xs)
+
+{-
+foldrT :: (a -> b -> b) -> (b -> b -> b) -> b -> Tree a -> b
+foldrT _ _ acc (R _ []) = acc
+foldrT f f2 acc (R x xs) = f x (foldr (f2 . foldrT f f2 acc) acc xs)
+
+
+foldlT :: (a -> b -> a) -> b -> Tree a -> b
+foldlT _  acc (R _ []) = acc
+foldlT f  acc (R x xs) = foldl f (f acc x) (map (foldlT f acc) xs)
+-}
 ---  
 
 -- 3. Nodi Equilibrati
@@ -178,4 +205,37 @@ inserimentoABR (Node x left right) valore
 -- inserimentoABR e' una visita di un albero e costa O(log n)
 -- Se la lista e' ordinata, il costo di listToABR diventa O(n^2)
 
+
+
 -- 5. Derivazioni di programmi
+
+ -- scanr f e = map (foldr f e) . tails 
+
+{-
+    CASO []:
+
+        scanr f e []
+        = {def. di scanr}
+        map (foldr f e) (tails [])
+        = {def. di tails}
+        map (foldr f e) [[]]
+        = {def. di map}
+        [foldr f e []]
+        = {def. di foldr}
+        [e]
+
+
+    CASO (x:xs):
+
+        scanr f e (x:xs)
+        = {def. di scanr}
+        map (foldr f e) (tails (x:xs))
+        = {def. di tails}
+        map (foldr f e) ((x:xs) : tails xs)
+        = {def. di map}
+        foldr f e (x:xs) : map (foldr f e) tails xs
+        = { applicazione ipotesi iniziale  scanr f e = map (foldr f e) . tails }
+        foldr f a (x:xs) : scanr f e xs
+        = {trasformazione foldr}
+        -- 
+-}
