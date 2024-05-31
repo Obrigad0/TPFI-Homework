@@ -93,16 +93,60 @@ struct Nodo* inserisci(struct Nodo* nodo, int val) {
 
 // 3. Quello che in Haskell non si puo' fare! pt I
 
-struct cBinTree{
-	int k;
-	int n;
-	int risultato;
-	cBinTree* left;
-	cBinTree* right;
-	
-	
-};
+typedef struct cBinTree {
+    int k;
+    int n;
+    int risultato;
+    struct cBinTree* left;
+    struct cBinTree* right;
+} cBinTree;
 
+struct cBinTree* creaNodoCBin(int n, int k);
+struct cBinTree* cbin(int n, int k);
+cBinTree* matrice[50][50] = {NULL};
+
+struct cBinTree* creaNodoCBin(int n, int k){
+	struct cBinTree* nodo = (struct cBinTree*)malloc(sizeof(struct cBinTree));
+	nodo->k = k;
+    nodo->n = n;
+    nodo->risultato = NULL;
+    nodo->left = NULL;
+	nodo->right = NULL;
+	return nodo;
+}
+
+//void cbinfun(int n, int k){
+	//cBinTree* matriceNodi[n][k] = {NULL};
+	//cbin(n,k,matriceNodi);
+//}
+
+struct cBinTree* cbin(int n, int k){
+	if(matrice[n][k] == NULL){
+		if (n==k || n==0 || k == 0){		
+			struct cBinTree* nodo = creaNodoCBin(n,k);
+	    	nodo->risultato = 1;
+	    	printf("Nodo foglia lv:%d = n:%d k:%d r:%d\n", n,n,k,1);
+	    	return nodo;
+	    	
+		} 
+			struct cBinTree* nodo = creaNodoCBin(n,k);
+			matrice[n][k] = nodo;
+	    	nodo -> left =  cbin(n-1,k-1);
+			nodo -> right = cbin(n-1,k);
+			nodo-> risultato =  (nodo -> left -> risultato + nodo -> right -> risultato);	
+			printf("Nodo lv:%d = n:%d k:%d r:%d\n", n,n,k,nodo-> risultato);
+			return nodo;
+		
+	}else{
+		return matrice[n][k];
+	}
+}
+
+// 4. Quello che in Haskell non si puo' fare! pt II
+
+
+
+ 
 
 
 // TEST AREA 
@@ -113,14 +157,17 @@ int main() {
 	//
 	
 	// ES. 2
-		int array[] = {3, 3, 3, 5, 3, 2, 5, 6, 7, 5, 3, 4, 6, 8, 9, 3, 21, 4, 5, 4, 6, 7, 5};
-	    int dim = sizeof(array) / sizeof(array[0]);
-		struct Punto* lista = removeDups(array, dim);
-		while (lista != NULL) {
-	        printf("%d ", lista->valore);
-	        lista = lista->next;
-	    }
+		//int array[] = {3, 3, 3, 5, 3, 2, 5, 6, 7, 5, 3, 4, 6, 8, 9, 3, 21, 4, 5, 4, 6, 7, 5};
+	    //int dim = sizeof(array) / sizeof(array[0]);
+	//	struct Punto* lista = removeDups(array, dim);
+		//while (lista != NULL) {
+	     //   printf("%d ", lista->valore);
+	    //    lista = lista->next;
+	   // }
 	//
+	
+	// ES. 3
+		cbin(5,3);
 }
 
 
