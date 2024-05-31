@@ -1,12 +1,5 @@
 #include <stdio.h>
-
-
-struct Nodo{
-	int valore;
-	struct Nodo* left;
-	struct Nodo* right;
-}
-
+#include <stdbool.h>
 // 1. Type Safety
 
 void endiannessValidation(){
@@ -24,39 +17,110 @@ void endiannessValidation(){
 
 //
 
-//Array Mutabili
+// 2. Array Mutabili
 
-void removeDups(int array[], int dim){
-	int i = 0;
-	struct Nodo* testa = creaNodo(array[i++]);
-	for (i; i < dim; i++){
-		
-	}	
+struct Nodo {
+    int valore;
+    struct Nodo* left;
+    struct Nodo* right;
+};
+
+struct Punto {
+    int valore;
+    struct Punto* next;
+};
+
+bool duplicato = false; // Variabile globale che ci indica se l'elemento inserito è un duplicato o no
+
+struct Punto* creaPunto(int val);
+struct Nodo* creaNodo(int val);
+struct Nodo* inserisci(struct Nodo* nodo, int val);
+
+struct Punto* removeDups(int array[], int dim) {
+    if (dim == 0) return NULL;
+    int i = 0;
+    struct Punto* head = creaPunto(array[i]);
+    struct Punto* tail = head;
+    struct Nodo* testa = creaNodo(array[i++]);
+
+    for (i; i < dim; i++) {
+        testa = inserisci(testa, array[i]);
+        if (!duplicato) {
+            tail->next = creaPunto(array[i]);
+            tail = tail->next;
+        }
+        duplicato = false;
+    }
+
+    return head;
+}
+
+struct Nodo* creaNodo(int val) {
+    struct Nodo* nodo = (struct Nodo*)malloc(sizeof(struct Nodo));
+    nodo->valore = val;
+    nodo->left = NULL;
+    nodo->right = NULL;
+    return nodo;
+}
+
+struct Punto* creaPunto(int val) {
+    struct Punto* lista = (struct Punto*)malloc(sizeof(struct Punto));
+    lista->valore = val;
+    lista->next = NULL;
+    return lista;
+}
+
+struct Nodo* inserisci(struct Nodo* nodo, int val) {
+    if (nodo == NULL) { // caso base
+        return creaNodo(val);
+    }
+    if (val == nodo->valore) {
+        // Elemento già presente nell'albero binario, quindi è un duplicato.
+        duplicato = true;
+        return nodo;
+    }
+    if (val < nodo->valore) { // valore in input minore del valore nel nodo, vado a SX
+        nodo->left = inserisci(nodo->left, val);
+    } else { // valore in input maggiore del valore nel nodo, vado a DX
+        nodo->right = inserisci(nodo->right, val);
+    }
+    return nodo;
+}
+
+// Il costo di questa funzione e' O(m log n), dove m e' la lunghezza dell'array e n e' il numero di nodi dell'albero binario
+// nel caso peggiore, dove l'array e' gia ordinato, la complessita' e' O(n^2)
+
+
+// 3. Quello che in Haskell non si puo' fare! pt I
+
+struct cBinTree{
+	int k;
+	int n;
+	int risultato;
+	cBinTree* left;
+	cBinTree* right;
 	
-}
+	
+};
 
-struct Nodo* creaNodo(int val){
-	struct Nodo* nodo = (struct Nodo*)malloc(sizeof(struct Nodo));
-	nodo -> valore = valore;
-	nodo -> left = NULL;
-	nodo -> right = NULL;
-}
 
-struct Nodo* inserisci(struct Nodo* nodo, int val){
-	if (nodo == NULL){ //caso base
-		return creaNodo(val);
-	}
-	if( val == nodo ->val){
-		
-	}
-	if (val < nodo -> val){ // valore in input minore del valore nel nodo, vado a SX
-		nodo -> left = inserisci(left, val);
-	}else{
-		
-	}
-}
+
+// TEST AREA 
+
 int main() {
-	endiannessValidation();
+	// ES. 1
+		//endiannessValidation();
+	//
+	
+	// ES. 2
+		int array[] = {3, 3, 3, 5, 3, 2, 5, 6, 7, 5, 3, 4, 6, 8, 9, 3, 21, 4, 5, 4, 6, 7, 5};
+	    int dim = sizeof(array) / sizeof(array[0]);
+		struct Punto* lista = removeDups(array, dim);
+		while (lista != NULL) {
+	        printf("%d ", lista->valore);
+	        lista = lista->next;
+	    }
+	//
 }
 
 
