@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
+
 // 1. Type Safety
 
 void endiannessValidation(){
@@ -126,8 +128,7 @@ struct cBinTree* cbin(int n, int k){
 			struct cBinTree* nodo = creaNodoCBin(n,k);
 	    	nodo->risultato = 1;
 	    	printf("Nodo foglia lv:%d = n:%d k:%d r:%d\n", n,n,k,1);
-	    	return nodo;
-	    	
+	    	return nodo;	    	
 		} 
 			struct cBinTree* nodo = creaNodoCBin(n,k);
 			matrice[n][k] = nodo;
@@ -145,30 +146,92 @@ struct cBinTree* cbin(int n, int k){
 // 4. Quello che in Haskell non si puo' fare! pt II
 
 
+typedef struct {
+	int succ;
+	int prec;
+}Pair;
 
- 
+Pair* eulerSieve(int n){
+	Pair* vettore = (Pair*) malloc ((n) * sizeof(Pair));
+
+	int i;
+	for(i = 3; i < n; i+=1){
+		if(i % 2 == 0){
+			vettore[i].prec = 2;
+			vettore[i].succ = 2;
+		}else{
+			vettore[i].prec = 1;
+			vettore[i].succ = 1;
+		}		
+	}
+	vettore[0].succ = 1;
+	vettore[0].prec = 1;	
+	vettore[1].prec = 1;
+	vettore[1].succ = 1;
+	vettore[2].succ = 2;
+    vettore[2].prec = 1;
+    	
+	int x;
+	int y;
+	int nPrimoPrecedente = 2;
+	for(x = 3; x * x < n; x += vettore[x - 1].succ){ 
+		for(y = x * x; y < n; y += x){
+			if( y % nPrimoPrecedente == 0 ||  y % 2 == 0){
+				vettore[(y - 1)].succ = 1;
+				vettore[(y - 1)].prec = 1;
+				continue;
+			} 
+			vettore[(y - 1) - vettore[y - 1].prec].succ += vettore[y - 1].succ;
+			if((y - 1) + vettore[y - 1].succ < n ){
+				vettore[(y - 1) + vettore[y - 1].succ].prec += vettore[y - 1].prec;
+			}
+			vettore[(y - 1)].succ = 1;
+			vettore[(y - 1)].prec = 1;
+		}
+		nPrimoPrecedente = x;
+	}	
+	return vettore;		
+}
+
+void printPairs(Pair* vettore, int n) {
+	int i = 0;
+    for (i; i < n; i++) {
+        printf("Numero: %d, Succ: %d, Prec: %d\n",  i + 1, vettore[i].succ, vettore[i].prec); 
+    }
+}
 
 
 // TEST AREA 
 
 int main() {
+	
+	/*
 	// ES. 1
-		//endiannessValidation();
+		endiannessValidation();
 	//
 	
 	// ES. 2
-		//int array[] = {3, 3, 3, 5, 3, 2, 5, 6, 7, 5, 3, 4, 6, 8, 9, 3, 21, 4, 5, 4, 6, 7, 5};
-	    //int dim = sizeof(array) / sizeof(array[0]);
-	//	struct Punto* lista = removeDups(array, dim);
-		//while (lista != NULL) {
-	     //   printf("%d ", lista->valore);
-	    //    lista = lista->next;
-	   // }
+		int array[] = {3, 3, 3, 5, 3, 2, 5, 6, 7, 5, 3, 4, 6, 8, 9, 3, 21, 4, 5, 4, 6, 7, 5};
+	    int dim = sizeof(array) / sizeof(array[0]);
+		struct Punto* lista = removeDups(array, dim);
+		while (lista != NULL) {
+	        printf("%d ", lista->valore);
+	    	lista = lista->next;
+	    }
 	//
 	
 	// ES. 3
 		cbin(5,3);
+
+		*/	
+	// ES. 4
+	
+		//int n = 24; // Dimensione dell'array
+    	//Pair* vettore = eulerSieve(n);
+    	//printPairs(vettore, n);
+    
+    //
+    
+    return 0;
 }
-
-
 
